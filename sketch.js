@@ -1,35 +1,35 @@
-let theShader;
-let cam;
-let canvas;
-
-function preload() {
-  theShader = loadShader('webcam.vert', 'webcam.frag');
-}
-
 function setup() {
-  pixelDensity(1);
-  const canvasWidth = min(windowWidth, 640); // Limit the size to 640px or less
-  const canvasHeight = canvasWidth * (4 / 3); // Maintain a 4:3 aspect ratio
-
-  canvas = createCanvas(canvasWidth, canvasHeight, WEBGL);
-  canvas.parent('canvas-holder');
-
-  noStroke();
-
-  cam = createCapture(VIDEO);
-  cam.size(canvasWidth, canvasHeight);
-  cam.hide();
-}
-
-function draw() {
-  shader(theShader);
-  theShader.setUniform('tex0', cam);
-  rect(0, 0, width, height);
-}
-
-function windowResized() {
-  const canvasWidth = min(windowWidth, 640);
-  const canvasHeight = canvasWidth * (3 / 4);
-  resizeCanvas(canvasWidth, canvasHeight);
-  cam.size(canvasWidth, canvasHeight);
-}
+    pixelDensity(1);
+    // Use windowWidth for full width on mobile, maintain a portrait aspect ratio
+    let canvasWidth = windowWidth;
+    let canvasHeight = windowHeight;
+    
+    // Ensure the canvas is not too large on desktop
+    if (windowWidth >= 768) {
+      canvasWidth = windowWidth / 3;
+      canvasHeight = windowHeight / 3 * (4 / 3); // Adjust this ratio to make it longer vertically
+    }
+  
+    canvas = createCanvas(canvasWidth, canvasHeight, WEBGL);
+    canvas.parent('canvas-holder');
+  
+    noStroke();
+  
+    cam = createCapture(VIDEO);
+    cam.size(width, height);
+    cam.hide();
+  }
+  
+  function windowResized() {
+    let canvasWidth = windowWidth;
+    let canvasHeight = windowHeight;
+    
+    if (windowWidth >= 768) {
+      canvasWidth = windowWidth / 3;
+      canvasHeight = windowHeight / 3 * (4 / 3);
+    }
+  
+    resizeCanvas(canvasWidth, canvasHeight);
+    cam.size(canvasWidth, canvasHeight);
+  }
+  
