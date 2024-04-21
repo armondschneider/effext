@@ -3,7 +3,7 @@ let cam;
 let canvas;
 
 function preload() {
-  theShader = loadShader('webcam.vert', 'webcam.frag');
+  theShader = loadShader('webcam.vert', 'webcam.frag', shaderLoaded, shaderError);
 }
 
 function setup() {
@@ -14,8 +14,10 @@ function setup() {
 
   noStroke();
 
-  cam = createCapture(VIDEO, function() {
-    console.log('Webcam loaded');
+  cam = createCapture(VIDEO, function(stream) {
+    console.log('Webcam video stream started');
+  }, function(error) {
+    console.error('Webcam video stream failed with error:', error);
   });
   cam.size(canvas.width, canvas.height);
   cam.hide();
@@ -27,7 +29,8 @@ function draw() {
     theShader.setUniform('tex0', cam);
     rect(0, 0, width, height);
   } else {
-    background(0);
+    background(255);
+    console.log('Waiting for webcam data...');
   }
 }
 
@@ -35,20 +38,21 @@ function windowResized() {
   let canvasSize = calculateCanvasSize();
   resizeCanvas(canvasSize.width, canvasSize.height);
   cam.size(canvas.width, canvas.height);
+  cam.hide();
 }
 
 function calculateCanvasSize() {
-  let w = windowWidth, h = windowHeight;
-  if ('ontouchstart' in window || w < 430) {
-    return { width: w * 0.9, height: h * 0.7 };
+  if (windowWidth < 768) {
+    return { width: windowWidth * 0.9, height: windowHeight * 0.75 };
   } else {
-    let size = min(w, 800);
-    return { width: size / 2, height: size / 2 * (4 / 3) };
+    return { width: windowWidth / 2, height: windowHeight / 2 };
   }
 }
 
-function print(message) {
-  let p = createP(message);
-  p.style('color', 'white');
-  document.body.appendChild(p.elt);
+function shaderLoaded() {
+  console.log('Shader loaded successfully');
+}
+
+function shaderError(err) {
+  console.error('Shader failed to load with error:', err);
 }
