@@ -1,42 +1,54 @@
+let theShader;
+let cam;
+let canvas;
+
+function preload() {
+  theShader = loadShader('webcam.vert', 'webcam.frag');
+}
+
 function setup() {
-    pixelDensity(1);
-    // Adjust canvas size based on mobile device dimensions
-    let canvasWidth, canvasHeight;
-    
-    // Detect mobile devices by checking if the touch is available or if the width is small
-    if ('ontouchstart' in window || windowWidth < 768) {
-      canvasWidth = windowWidth * 0.9; // Use 90% of the screen width
-      canvasHeight = canvasWidth * 1.5; // Make the height 1.5 times the width for a longer look
-    } else {
-      // For non-mobile devices
-      canvasWidth = windowWidth / 3;
-      canvasHeight = canvasWidth * (4 / 3);
-    }
-  
-    canvas = createCanvas(canvasWidth, canvasHeight, WEBGL);
-    canvas.parent('canvas-holder');
-  
-    noStroke();
-  
-    cam = createCapture(VIDEO);
-    cam.size(width, height); // Match the size of the canvas
-    cam.hide();
+  pixelDensity(1);
+  let canvasSize = calculateCanvasSize();
+  canvas = createCanvas(canvasSize.width, canvasSize.height, WEBGL);
+  canvas.parent('canvas-holder');
+
+  noStroke();
+
+  cam = createCapture(VIDEO, function() {
+    console.log('Webcam loaded');
+  });
+  cam.size(canvas.width, canvas.height);
+  cam.hide();
+}
+
+function draw() {
+  if (cam.loadedmetadata) {
+    shader(theShader);
+    theShader.setUniform('tex0', cam);
+    rect(0, 0, width, height);
+  } else {
+    background(0);
   }
-  
-  function windowResized() {
-    // Adjust canvas size on window resize, with mobile dimensions in mind
-    if ('ontouchstart' in window || windowWidth < 768) {
-      let canvasWidth = windowWidth * 0.9;
-      let canvasHeight = canvasWidth * 1.5;
-      resizeCanvas(canvasWidth, canvasHeight);
-      cam.size(canvasWidth, canvasHeight);
-    } else {
-      let canvasWidth = windowWidth / 3;
-      let canvasHeight = canvasWidth * (4 / 3);
-      resizeCanvas(canvasWidth, canvasHeight);
-      cam.size(canvasWidth, canvasHeight);
-    }
-  
-    cam.hide();
+}
+
+function windowResized() {
+  let canvasSize = calculateCanvasSize();
+  resizeCanvas(canvasSize.width, canvasSize.height);
+  cam.size(canvas.width, canvas.height);
+}
+
+function calculateCanvasSize() {
+  let w = windowWidth, h = windowHeight;
+  if ('ontouchstart' in window || w < 430) {
+    return { width: w * 0.9, height: h * 0.7 };
+  } else {
+    let size = min(w, 800);
+    return { width: size / 2, height: size / 2 * (4 / 3) };
   }
-  
+}
+
+function print(message) {
+  let p = createP(message);
+  p.style('color', 'white');
+  document.body.appendChild(p.elt);
+}
