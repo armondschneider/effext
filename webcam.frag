@@ -6,7 +6,6 @@ varying vec2 vTexCoord;
 
 uniform sampler2D tex0;
 
-
 void main() {
   vec2 uv = vTexCoord;
   
