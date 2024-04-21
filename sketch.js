@@ -1,13 +1,12 @@
 function setup() {
     pixelDensity(1);
-    // Use windowWidth for full width on mobile, maintain a portrait aspect ratio
-    let canvasWidth = windowWidth;
-    let canvasHeight = windowHeight;
+    let canvasWidth, canvasHeight;
     
-    // Ensure the canvas is not too large on desktop
-    if (windowWidth >= 768) {
+    if (windowWidth < 768) { 
+      canvasHeight = windowHeight * 0.8; 
+    } else {
       canvasWidth = windowWidth / 3;
-      canvasHeight = windowHeight / 3 * (4 / 3); // Adjust this ratio to make it longer vertically
+      canvasHeight = canvasWidth * (4 / 3);
     }
   
     canvas = createCanvas(canvasWidth, canvasHeight, WEBGL);
@@ -16,20 +15,25 @@ function setup() {
     noStroke();
   
     cam = createCapture(VIDEO);
-    cam.size(width, height);
+    cam.size(canvasWidth, canvasHeight); // Match the size of the canvas
     cam.hide();
   }
   
   function windowResized() {
-    let canvasWidth = windowWidth;
-    let canvasHeight = windowHeight;
-    
-    if (windowWidth >= 768) {
+    let canvasWidth, canvasHeight;
+  
+    if (windowWidth < 768) {
+      canvasWidth = windowWidth * 0.9;
+      canvasHeight = windowHeight * 0.8;
+    } else {
       canvasWidth = windowWidth / 3;
-      canvasHeight = windowHeight / 3 * (4 / 3);
+      canvasHeight = canvasWidth * (4 / 3);
     }
   
     resizeCanvas(canvasWidth, canvasHeight);
     cam.size(canvasWidth, canvasHeight);
+  
+    // Handling potential memory issues with frequent resizes
+    cam.hide(); 
   }
   
