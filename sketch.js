@@ -1,58 +1,37 @@
-let theShader;
-let cam;
-let canvas;
-
-function preload() {
-  theShader = loadShader('webcam.vert', 'webcam.frag', shaderLoaded, shaderError);
-}
-
 function setup() {
   pixelDensity(1);
-  let canvasSize = calculateCanvasSize();
-  canvas = createCanvas(canvasSize.width, canvasSize.height, WEBGL);
+  let canvasWidth, canvasHeight;
+  
+  if (windowWidth < 768) { 
+    canvasHeight = windowHeight * 0.8; 
+  } else {
+    canvasWidth = windowWidth / 3;
+    canvasHeight = canvasWidth * (4 / 3);
+  }
+
+  canvas = createCanvas(canvasWidth, canvasHeight, WEBGL);
   canvas.parent('canvas-holder');
 
   noStroke();
 
-  cam = createCapture(VIDEO, function(stream) {
-    console.log('Webcam video stream started');
-  }, function(error) {
-    console.error('Webcam video stream failed with error:', error);
-  });
-  cam.size(canvas.width, canvas.height);
+  cam = createCapture(VIDEO);
+  cam.size(canvasWidth, canvasHeight);
   cam.hide();
-}
-
-function draw() {
-  if (cam.loadedmetadata) {
-    shader(theShader);
-    theShader.setUniform('tex0', cam);
-    rect(0, 0, width, height);
-  } else {
-    background(255);
-    console.log('Waiting for webcam data...');
-  }
 }
 
 function windowResized() {
-  let canvasSize = calculateCanvasSize();
-  resizeCanvas(canvasSize.width, canvasSize.height);
-  cam.size(canvas.width, canvas.height);
-  cam.hide();
-}
+  let canvasWidth, canvasHeight;
 
-function calculateCanvasSize() {
   if (windowWidth < 768) {
-    return { width: windowWidth * 0.9, height: windowHeight * 0.75 };
+    canvasWidth = windowWidth * 0.9;
+    canvasHeight = windowHeight * 0.8;
   } else {
-    return { width: windowWidth / 2, height: windowHeight / 2 };
+    canvasWidth = windowWidth / 3;
+    canvasHeight = canvasWidth * (4 / 3);
   }
-}
 
-function shaderLoaded() {
-  console.log('Shader loaded successfully');
-}
+  resizeCanvas(canvasWidth, canvasHeight);
+  cam.size(canvasWidth, canvasHeight);
 
-function shaderError(err) {
-  console.error('Shader failed to load with error:', err);
+  cam.hide(); 
 }
